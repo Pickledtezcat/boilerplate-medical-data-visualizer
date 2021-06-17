@@ -9,6 +9,8 @@ import numpy as np
 df = pd.read_csv(
 'medical_examination.csv')
 
+print(df.iloc[0])
+
 weight_series = df["weight"]
 height_series = df["height"]
 hm = height_series * 0.01
@@ -40,7 +42,7 @@ def draw_cat_plot():
     #df_cat = None
 
     # Draw the catplot with 'sns.catplot()'
-    g = sns.catplot(kind="count", x="variable", hue="value", col="cardio", data=df_cat) 
+    fig = sns.catplot(kind="count", x="variable", hue="value", col="cardio", data=df_cat) 
         
     # Do not modify the next two lines
     fig.savefig('catplot.png')
@@ -50,23 +52,29 @@ def draw_cat_plot():
 # Draw Heat Map
 def draw_heat_map():
     # Clean the data
-    df_heat = None
+    blood_mask = df['ap_lo'] <= df['ap_hi']
+    df.loc[blood_mask]
+    h1 = df['height'] >= df['height'].quantile(0.025) 
+    df.loc[h1]
+    h2 = df['height'] <= df['height'].quantile(0.975)
+    df.loc[h2]
+    w1 = df['weight'] >= df['weight'].quantile(0.025)
+    df.loc[w1]
+    w2 = df['weight'] <= df['weight'].quantile(0.975)
+    df.loc[w2]
 
     # Calculate the correlation matrix
-    corr = None
+    corr = df.corr()
 
     # Generate a mask for the upper triangle
-    mask = None
-
-
+    t_mask = np.triu(corr)
 
     # Set up the matplotlib figure
-    #fig, ax = None
+    fig, ax = plt.subplots(figsize=(9,9))
 
     # Draw the heatmap with 'sns.heatmap()'
-
-
+    sns.heatmap(corr, linewidths=1, mask=t_mask, vmax=0.3, center=0.09,square=True, cbar_kws = {'orientation' : 'horizontal'})
 
     # Do not modify the next two lines
-    #fig.savefig('heatmap.png')
-    #return fig
+    fig.savefig('heatmap.png')
+    return fig
